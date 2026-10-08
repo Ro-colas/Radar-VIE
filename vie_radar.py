@@ -16,17 +16,17 @@ PROFILE = {
     "metiers": ["data", "analyst", "sale", "supply chain", "business developer" , "product manager"],  # mots du poste visé
     "competences": ["Sale", "sql", "excel", "power bi", "sap", "management" , "portfolio management" , "customer relationship","Salesforce" , "International" , "Supply chain"]                     # compétences de ton CV
     "entreprises_visees": [
-        "Arkema", "Capgemini", "Thales", "LVMH", "L'Oréal", "Sanofi", "Airbus", "Schneider", "Michelin","Salesforce" , "SAP"
+        "Arkema", "Capgemini", "Thales", "LVMH", "L'Oréal", "Sanofi", "Airbus", "Schneider", "Michelin","Salesforce" , "SAP" ,
         "Richemont", "Air Liquide", "TotalEnergies", "Total Energies", "Safran",
         "Louis Vuitton", "Dior", "Moët", "Hennessy", "Guerlain", "Fendi", "Celine", "Bulgari",  # maisons LVMH
-        "Cartier", "Van Cleef", "Piaget", "Jaeger", "Vacheron", "Montblanc", "Chloé",                     # maisons Richemont
+        "Cartier", "Van Cleef", "Piaget", "Jaeger", "Vacheron", "Montblanc",                     # maisons Richemont
     ],
     "pays_preferes": [],
     "pays_exclus": [],
     "exclure": ["stage", "alternance", "internship"],   # mots interdits dans le titre
     "duree_min_mois": 6,
     "indemnite_min": 1500,                               # € / mois
-    "inclure_via": True,                                # VIA = volontariat en administration
+    "inclure_via": False,                                # VIA = volontariat en administration
 }
 
 # ═════════════ 2. SOURCES ═════════════
