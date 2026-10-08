@@ -10,7 +10,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
-      - run: pip install requests && python vie_radar.py
+      - run: |
+          pip install requests
+          SCRIPT=$(find . -type f -iname 'vie*radar*.py*' | head -n 1)
+          if [ -z "$SCRIPT" ]; then echo "Aucun fichier vie_radar.py dans le depot. Contenu :"; ls -R; exit 1; fi
+          echo "Script utilise : $SCRIPT"
+          python "$SCRIPT"
       - run: mkdir site && mv vie_offres.html site/index.html
       - uses: actions/upload-pages-artifact@v3
         with: {path: site}
