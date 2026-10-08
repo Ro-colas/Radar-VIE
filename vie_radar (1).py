@@ -13,7 +13,7 @@ import requests
 
 # ═════════════ 1. TON PROFIL : à modifier (les valeurs ci-dessous sont des EXEMPLES) ═════════════
 PROFILE = {
-    "metiers": ["data", "analyst", "finance", "supply chain", "business developer"],  # mots du poste visé
+    "metiers": ["data", "analyst", "sale", "supply chain", "business developer" , "product manager"],  # mots du poste visé
     "competences": ["python", "sql", "excel", "power bi", "sap"],                     # compétences de ton CV
     "entreprises_visees": [
         "Arkema", "Capgemini", "Thales", "LVMH", "L'Oréal", "Sanofi", "Airbus", "Schneider", "Michelin",
