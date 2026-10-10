@@ -1,27 +1,53 @@
 name: VIE Radar
+
 on:
-  schedule: [{cron: "0 6 * * 1-5"}]   # chaque matin en semaine
+  schedule:
+    - cron: "0 6 * * 1-5"   # chaque matin en semaine (6 h UTC = 7 h ou 8 h à Paris)
   workflow_dispatch:
-permissions: {contents: read, pages: write, id-token: write}
+  push:
+    branches: [main]
+    paths: [profile.toml, vie_radar.py, template.html]   # republie quand tu modifies ton profil
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: "3.12"}
-      - run: |
-          pip install requests
-          SCRIPT=$(find . -type f -iname 'vie*radar*.py*' | head -n 1)
-          if [ -z "$SCRIPT" ]; then echo "Aucun fichier vie_radar.py dans le depot. Contenu :"; ls -R; exit 1; fi
-          echo "Script utilise : $SCRIPT"
-          python "$SCRIPT"
-      - run: mkdir site && mv vie_offres.html site/index.html
-      - uses: actions/upload-pages-artifact@v3
-        with: {path: site}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.12"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: data   # mémorise les offres déjà vues (badge « nouvelle »)
+          key: vie-seen-${{ github.run_id }}
+          restore-keys: vie-seen-
+      - run: python vie_radar.py
+        env:
+          VIE_API_KEY: ${{ secrets.VIE_API_KEY }}
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9  # v5.0.0
+        with:
+          path: docs
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: {name: github-pages}
+    timeout-minutes: 5
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/deploy-pages@v4
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346  # v5.0.1
