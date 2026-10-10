@@ -1,0 +1,89 @@
+# VIE Radar : ton profil. Modifie seulement ce fichier (pas le code).
+# Chaque liste : mots entre guillemets, séparés par des virgules. La casse et les accents sont ignorés.
+# Un mot compte s'il apparaît en entier (« sale » trouve « sales » mais pas « disposable »).
+
+# mots du poste visé (jusqu'à 40 pts)
+metiers = [
+  "sales",
+  "commercial",
+  "business development",
+  "business developer",
+  "sales data",
+  "sales analyst",
+  "data analyst",
+  "marketing",
+  "product manager",
+  "product management",
+  "account manager",
+  "key account",
+  "customer success",
+  "supply chain",
+]
+
+# compétences de ton CV (jusqu'à 15 pts)
+competences = [
+  "salesforce",
+  "power bi",
+  "sap",
+  "excel",
+  "data analysis",
+  "business intelligence",
+  "crm",
+  "portfolio management",
+  "sale",
+]
+
+# +10 pts si l'entreprise correspond
+entreprises_visees = [
+  "Arkema",
+  "Capgemini",
+  "Thales",
+  "LVMH",
+  "L'Oréal",
+  "Sanofi",
+  "Airbus",
+  "Schneider Electric",
+  "Michelin",
+  "Richemont",
+  "Air Liquide",
+  "TotalEnergies",
+  "Safran",
+  "Louis Vuitton",
+  "Dior",
+  "Sephora",
+  "Moët",
+  "Hennessy",
+  "Guerlain",
+  "Fendi",
+  "Celine",
+  "Bulgari",
+  "Cartier",
+  "Van Cleef",
+  "Piaget",
+  "Jaeger",
+  "Vacheron",
+  "Montblanc",
+  "Chloé",
+]
+
+# +15 pts (noms en français)
+pays_preferes = []
+
+# score 0 pour ces pays
+pays_exclus = []
+
+# mots interdits dans le titre (score 0)
+exclure = [
+  "stage",
+  "alternance",
+  "internship",
+  "stagiaire",
+  "alternant",
+  "apprenti",
+]
+
+duree_min_mois = 6
+
+indemnite_min = 1800
+
+inclure_via = false
