@@ -1,0 +1,6 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions   # propose la mise à jour des outils figés
+    directory: /
+    schedule:
+      interval: weekly
