@@ -84,6 +84,12 @@ def months_in(t):
     return int(m.group(1)) if m else 0
 
 
+def day(v):
+    """Date AAAA-MM-JJ valide, sinon chaîne vide."""
+    m = re.match(r"\d{4}-\d{2}-\d{2}", str(v or ""))
+    return m.group(0) if m else ""
+
+
 def safe_url(u):
     return u if urlsplit(u).scheme in ("http", "https") else ""  # pas de javascript:, data:…
 
@@ -99,10 +105,11 @@ def found(terms, text):
 
 
 def offer(oid, source, title, url, company, city="", country="", typ="VIE",
-          months=0, pay=0, posted="", deadline="", text=""):
+          months=0, pay=0, posted="", deadline="", text="", start=""):
     return {"id": oid, "source": source, "title": title.strip(), "company": company, "city": city,
             "country": EN_FR.get(norm(country), country), "type": typ, "months": months, "pay": pay,
-            "posted": posted, "deadline": deadline, "url": safe_url(url), "text": text}
+            "posted": day(posted), "deadline": day(deadline), "start": day(start),
+            "url": safe_url(url), "text": text}
 
 
 # ───────────── profil ─────────────
@@ -134,8 +141,9 @@ def from_bf(r):
     return offer(f"bf-{r['id']}", "Business France", str(g("missionTitle", "title")), f"{SITE}/offres/{r['id']}",
                  str(g("organizationName", "companyName")), str(g("cityName")), str(g("countryName")),
                  str(g("missionType") or "VIE"), to_int(g("missionDuration")), to_int(g("indemnite")),
-                 str(g("startBroadcastDate", "creationDate"))[:10], str(g("endBroadcastDate"))[:10],
-                 " ".join(v for v in r.values() if isinstance(v, str)))
+                 g("startBroadcastDate", "creationDate"), g("endBroadcastDate"),
+                 " ".join(v for v in r.values() if isinstance(v, str)),
+                 next((v for k, v in r.items() if "startdate" in k.lower() and v), ""))  # date « à pourvoir »
 
 
 def business_france():
@@ -147,7 +155,7 @@ def business_france():
             "countriesIds": [], "studiesLevelId": [], "companiesSizes": [], "specializationsIds": [],
             "entreprisesIds": [], "missionStartDate": None, "gerographicZones": [],
             "countriesFilterOperator": "OR", "specializationsFilterOperator": "OR"}
-    out, seen = [], set()
+    out, seen, dates = [], set(), set()
     for page in range(40):  # 100 offres max par appel : on pagine
         d = jget(API_URL, {**body, "skip": page * 100}, headers)
         rows = d.get("result") if isinstance(d, dict) else d
@@ -157,9 +165,11 @@ def business_france():
         for r in fresh:
             seen.add(r["id"])
             out.append(from_bf(r))
+            dates.update(k for k in r if "date" in k.lower())
         if not fresh or len(rows) < 100:
             break
         time.sleep(0.3)
+    print(f"  champs de date de l'API : {sorted(dates)}")
     return out
 
 
@@ -283,7 +293,7 @@ def write_outputs(offers, today):
     DOCS.mkdir(exist_ok=True)
     (DOCS / "offres.json").write_text(json.dumps(offers, ensure_ascii=False, indent=1), encoding="utf-8")
     cols = [("score", "score"), ("title", "titre"), ("company", "entreprise"), ("city", "ville"), ("country", "pays"),
-            ("type", "type"), ("months", "mois"), ("pay", "indemnité"), ("deadline", "date limite"),
+            ("type", "type"), ("months", "mois"), ("pay", "indemnité"), ("deadline", "date limite"), ("start", "à pourvoir"),
             ("source", "source"), ("url", "lien")]
     with open(DOCS / "offres.csv", "w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f, delimiter=";")
@@ -335,6 +345,8 @@ def main():
         sys.exit(f"Business France indisponible{hint} : publication annulée, l'ancienne page reste en ligne.")
 
     offers = deduplicate([o for o in offers if o["title"]])
+    known = sum(bool(o["start"]) for o in offers if o["source"] == "Business France")
+    print(f"• date « à pourvoir » connue pour {known} offres Business France")
     DATA.mkdir(exist_ok=True)
     seen_file = DATA / "vie_seen.json"
     try:
@@ -344,6 +356,7 @@ def main():
     today = date.today()
     for o in offers:
         o["score"], o["why"] = score(o, profile)
+        o["targeted"] = bool(found(profile["entreprises_visees"], norm(o["company"])))
         o["new"] = bool(seen) and o["id"] not in seen  # 1er lancement : rien n'est marqué « nouvelle »
         try:
             o["days_left"] = (date.fromisoformat(o["deadline"]) - today).days
